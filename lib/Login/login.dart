@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) =>  MainScreen()), // Corrected to HomeScreen
+            MaterialPageRoute(builder: (context) =>  MainScreen(user: FirebaseAuth.instance.currentUser!)), // Corrected to HomeScreen
           );
         }
       } on FirebaseAuthException catch (e) {
