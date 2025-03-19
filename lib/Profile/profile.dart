@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -43,6 +41,7 @@ class _ProfileState extends State<Profile> {
           userEmail = userData['Email'];
           _isLoading = false;
         });
+        print("Profile Pic URL: $userProfilePic"); // Debugging
       } else {
         setState(() {
           _isLoading = false;
@@ -60,8 +59,8 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
+      appBar:  AppBar(
+        title: Text('Profile'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -94,7 +93,7 @@ class _ProfileState extends State<Profile> {
                     email: userEmail,
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [],
                   ),
