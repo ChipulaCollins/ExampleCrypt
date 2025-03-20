@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         '/messages': (context) => Chats(),
         '/profile': (context) => Profile(user: FirebaseAuth.instance.currentUser!),
         //'/metamask': (context) => MetaMaskProviderScreen(),
-        //'/file_transfer': (context) => FileTransferScreen(),
+       // '/file_transfer': (context) => FileTransferScreen(),
       },
     );
   }
