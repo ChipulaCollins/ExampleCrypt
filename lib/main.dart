@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:untitled/Document%20Upload/Result.dart';
 import 'package:untitled/Login/login.dart';
 import 'package:untitled/View/message/chat/chats.dart';
 import 'package:untitled/Document Upload/Upload.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
       home: LoginPage(),
       routes: {
         '/upload': (context) => Upload(),
-        '/details': (context) => RouteScreen(routeName: 'Route 2'),
+        '/details': (context) => ResultScreen(fileHash: '', hash: '',),
         '/audit': (context) => RouteScreen(routeName: 'Route 3'),
         '/verification': (context) => RouteScreen(routeName: 'Route 4'),
         '/messages': (context) => Chats(),
@@ -94,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
               onPressed: () {
                 Navigator.pushNamed(context, '/details');
               },
-              child: Text('Document Details'),
+              child: Text('Hash Result'),
             ),
             SizedBox(height: 16),
             ElevatedButton(

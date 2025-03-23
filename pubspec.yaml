@@ -43,6 +43,7 @@ dependencies:
   #flutter_foreground_service: ^0.4.1
   web_socket_client: ^0.1.0
   synchronized: ^3.3.0
+  sqflite:
 
   uuid: ^3.0.5
   #url_launcher: ^6.3.1
@@ -57,7 +58,7 @@ dependencies:
   crypto: ^3.0.6
   #flutter_ipfs: ^0.0.2
 
-  #path_provider: ^2.0.2
+  path_provider: ^2.0.2
   flutter:
     sdk: flutter
 

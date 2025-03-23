@@ -1,6 +1,8 @@
 import 'dart:io';
-import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // Import the flutter_animate package
 
 class Upload extends StatefulWidget {
   @override
@@ -8,125 +10,160 @@ class Upload extends StatefulWidget {
 }
 
 class _UploadState extends State<Upload> {
-  String? _selectedFilePath;
-  bool _isLoading = false;
+  File? _selectedFile;
+  String? _fileHash;
+  bool _isProcessing =
+  false; // Track if file picking/hashing is in progress
 
-  Future<void> _pickFile() async {
-    String? path = await FilesystemPicker.open(
-      title: 'Select File',
-      context: context,
-      rootDirectory: Directory.systemTemp.parent, // Start from the temp directory
-      fsType: FilesystemType.file,
-      folderIconColor: Colors.teal,
-    );
+  Future<void> _pickAndHashFile() async {
+    setState(() {
+      _isProcessing =
+      true; // Set processing to true before starting file picking
+      _fileHash =
+      null; // Clear previous hash.  Good practice and good for UI feedback.
+    });
 
-    if (path != null) {
+    try {
+      final result = await FilePicker.platform.pickFiles();
+      if (result != null) {
+        _selectedFile = File(result.files.single.path!);
+        final fileBytes = await _selectedFile!.readAsBytes();
+        final digest = sha256.convert(fileBytes);
+        _fileHash = digest.toString();
+      }
+    } catch (e) {
+      print("Error picking/hashing file: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      _fileHash = null; // ensure null on error
+    } finally {
       setState(() {
-        _selectedFilePath = path;
+        _isProcessing =
+        false; // Set processing to false after completing file picking/hashing
       });
     }
-  }
-
-  Future<void> _transferFile() async {
-    if (_selectedFilePath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a file first.')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate file transfer (replace with actual blockchain logic)
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File transfer successful!')),
-      );
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('File Transfer'),
-        backgroundColor: Colors.teal,
-        elevation: 0,
-      ),
-      backgroundColor: Colors.grey[100],
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      'Selected File:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+      backgroundColor: const Color(0xFF121212), // Dark background
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              // Use Animate to add an animation to the button
+              ElevatedButton(
+                onPressed: _isProcessing ? null : _pickAndHashFile,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                  const Color(0xFF007BFF), // A brighter button color
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30, vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 8, // Add a subtle shadow
+                  shadowColor:
+                  const Color(0xFF007BFF).withOpacity(0.4), // Shadow color
+                ),
+                child: _isProcessing
+                    ? const CircularProgressIndicator(
+                  valueColor:
+                  AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 3,
+                )
+                    : const Text(
+                  'Select and Hash File',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ).animate().scale(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut), // Add scale animation
+
+              const SizedBox(height: 30),
+
+              // Show file name and hash
+              if (_selectedFile != null)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E1E1E), // Darker container
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF333333), // Darker border
+                      width: 1,
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      _selectedFilePath ?? 'No file selected',
-                      style: TextStyle(
-                        color: _selectedFilePath != null ? Colors.black87 : Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _pickFile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Selected File:',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
                         ),
                       ),
-                      child: const Text('Select File'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _transferFile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: _isLoading
-                  ? const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              )
-                  : const Text(
-                'Transfer File',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-          ],
+                      const SizedBox(height: 8),
+                      Text(
+                        _selectedFile!.path.split('/').last,
+                        // show only the file name
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 15),
+                      const Text(
+                        'SHA-256 Hash:',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SelectableText(
+                        _fileHash ?? 'No hash calculated',
+                        style: TextStyle(
+                          color: _fileHash != null
+                              ? Colors.cyanAccent
+                              : Colors.grey, // Highlight the hash
+                          fontSize: 14,
+                          fontFamily: 'Courier New',
+                          fontWeight: FontWeight.w400,
+                        ),
+                        textAlign: TextAlign.left,
+                      ).animate().fadeIn(
+                          duration: const Duration(
+                              milliseconds:
+                              500)), // Add fade-in to the hash
+                    ],
+                  ),
+                ).animate().slideY(
+                    begin: 1,
+                    end: 0,
+                    duration: const Duration(
+                        milliseconds:
+                        500)), // Add slide-in animation for the container
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
