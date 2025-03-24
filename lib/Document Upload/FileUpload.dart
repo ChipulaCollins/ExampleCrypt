@@ -65,7 +65,7 @@ class _UploadScreenState extends State<UploadScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ResultScreen(hash: hash, fileHash: '',),
+          builder: (context) => ResultScreen(fileHash: '',),
         ),
       );
     } catch (e) {

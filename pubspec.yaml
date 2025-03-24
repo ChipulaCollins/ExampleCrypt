@@ -43,7 +43,7 @@ dependencies:
   #flutter_foreground_service: ^0.4.1
   web_socket_client: ^0.1.0
   synchronized: ^3.3.0
-  sqflite:
+  basic_utils: ^5.7.0
 
   uuid: ^3.0.5
   #url_launcher: ^6.3.1

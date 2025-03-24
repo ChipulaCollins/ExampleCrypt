@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       home: LoginPage(),
       routes: {
         '/upload': (context) => Upload(),
-        '/details': (context) => ResultScreen(fileHash: '', hash: '',),
+        '/details': (context) => ResultScreen(fileHash: '',),
         '/audit': (context) => RouteScreen(routeName: 'Route 3'),
         '/verification': (context) => RouteScreen(routeName: 'Route 4'),
         '/messages': (context) => Chats(),
