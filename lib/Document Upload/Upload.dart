@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter_animate/flutter_animate.dart'; // Import the flutter_animate package
+import 'package:flutter_animate/flutter_animate.dart';
+
+import 'Result.dart';
 
 class Upload extends StatefulWidget {
   @override
@@ -12,15 +14,12 @@ class Upload extends StatefulWidget {
 class _UploadState extends State<Upload> {
   File? _selectedFile;
   String? _fileHash;
-  bool _isProcessing =
-  false; // Track if file picking/hashing is in progress
+  bool _isProcessing = false;
 
   Future<void> _pickAndHashFile() async {
     setState(() {
-      _isProcessing =
-      true; // Set processing to true before starting file picking
-      _fileHash =
-      null; // Clear previous hash.  Good practice and good for UI feedback.
+      _isProcessing = true;
+      _fileHash = null;
     });
 
     try {
@@ -39,11 +38,10 @@ class _UploadState extends State<Upload> {
           duration: const Duration(seconds: 5),
         ),
       );
-      _fileHash = null; // ensure null on error
+      _fileHash = null;
     } finally {
       setState(() {
-        _isProcessing =
-        false; // Set processing to false after completing file picking/hashing
+        _isProcessing = false;
       });
     }
   }
@@ -51,7 +49,18 @@ class _UploadState extends State<Upload> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212), // Dark background
+      backgroundColor: const Color(0xFF121212),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('File Upload and Hash'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -59,26 +68,21 @@ class _UploadState extends State<Upload> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              // Use Animate to add an animation to the button
               ElevatedButton(
                 onPressed: _isProcessing ? null : _pickAndHashFile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                  const Color(0xFF007BFF), // A brighter button color
+                  backgroundColor: const Color(0xFF007BFF),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 30, vertical: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  elevation: 8, // Add a subtle shadow
-                  shadowColor:
-                  const Color(0xFF007BFF).withOpacity(0.4), // Shadow color
+                  elevation: 8,
+                  shadowColor: const Color(0xFF007BFF).withOpacity(0.4),
                 ),
                 child: _isProcessing
                     ? const CircularProgressIndicator(
-                  valueColor:
-                  AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   strokeWidth: 3,
                 )
                     : const Text(
@@ -88,21 +92,16 @@ class _UploadState extends State<Upload> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ).animate().scale(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut), // Add scale animation
-
+              ).animate().scale(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut),
               const SizedBox(height: 30),
-
-              // Show file name and hash
               if (_selectedFile != null)
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E1E), // Darker container
+                    color: const Color(0xFF1E1E1E),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFF333333), // Darker border
+                      color: const Color(0xFF333333),
                       width: 1,
                     ),
                   ),
@@ -119,7 +118,6 @@ class _UploadState extends State<Upload> {
                       const SizedBox(height: 8),
                       Text(
                         _selectedFile!.path.split('/').last,
-                        // show only the file name
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -139,26 +137,29 @@ class _UploadState extends State<Upload> {
                       SelectableText(
                         _fileHash ?? 'No hash calculated',
                         style: TextStyle(
-                          color: _fileHash != null
-                              ? Colors.cyanAccent
-                              : Colors.grey, // Highlight the hash
+                          color: _fileHash != null ? Colors.cyanAccent : Colors.grey,
                           fontSize: 14,
                           fontFamily: 'Courier New',
                           fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.left,
-                      ).animate().fadeIn(
-                          duration: const Duration(
-                              milliseconds:
-                              500)), // Add fade-in to the hash
+                      ).animate().fadeIn(duration: const Duration(milliseconds: 500)),
+                      const SizedBox(height: 20),
+                      if (_fileHash != null)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ResultScreen(fileHash: _fileHash!),
+                              ),
+                            );
+                          },
+                          child: const Text('Copy to Result Screen'),
+                        ),
                     ],
                   ),
-                ).animate().slideY(
-                    begin: 1,
-                    end: 0,
-                    duration: const Duration(
-                        milliseconds:
-                        500)), // Add slide-in animation for the container
+                ).animate().slideY(begin: 1, end: 0, duration: const Duration(milliseconds: 500)),
             ],
           ),
         ),
@@ -166,4 +167,3 @@ class _UploadState extends State<Upload> {
     );
   }
 }
-

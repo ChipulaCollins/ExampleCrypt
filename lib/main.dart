@@ -8,6 +8,7 @@ import 'package:untitled/Document%20Upload/Result.dart';
 import 'package:untitled/Login/login.dart';
 import 'package:untitled/View/message/chat/chats.dart';
 import 'package:untitled/Document Upload/Upload.dart';
+import 'MetaMask/test.dart';
 import 'home.dart';
 import 'Profile/profile.dart';
 //import 'package:flutter_web3/flutter_web3.dart';
@@ -30,8 +31,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/upload': (context) => Upload(),
         '/details': (context) => ResultScreen(fileHash: '',),
-        '/audit': (context) => RouteScreen(routeName: 'Route 3'),
+        '/Signature': (context) => RouteScreen(routeName: 'Route 3'),
         '/verification': (context) => RouteScreen(routeName: 'Route 4'),
+        '/Eth': (context) => BalanceDisplayWidget(),
         '/messages': (context) => Chats(),
         '/profile': (context) => Profile(user: FirebaseAuth.instance.currentUser!),
         //'/metamask': (context) => MetaMaskProviderScreen(),
@@ -100,9 +102,9 @@ class _MainScreenState extends State<MainScreen> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/audit');
+                Navigator.pushNamed(context, '/Signature');
               },
-              child: Text('Audit Trail'),
+              child: Text('Signature'),
             ),
             SizedBox(height: 16),
             ElevatedButton(
@@ -110,6 +112,13 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.pushNamed(context, '/verification');
               },
               child: Text('Verification'),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/Eth');
+              },
+              child: Text('Eth'),
             ),
             SizedBox(height: 16),
             ElevatedButton(

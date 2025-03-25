@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pointycastle/export.dart'; // Import pointycastle
+import 'package:untitled/Document%20Upload/sign.dart';
 import 'encrpData.dart';
+import 'Upload.dart';
 import 'package:basic_utils/basic_utils.dart';// Import rsa_screen_no_classes.dart
 import 'dart:convert';
 
@@ -34,8 +36,8 @@ class ResultScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'SHA-256 Hash:',
+                     Text(
+                      'SHA-256 Hash: ${fileHash ?? 'No hash calculated'}',
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 16,
@@ -143,7 +145,19 @@ class ResultScreen extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  if (fileHash != null && private != null && public != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => buildSignatureScreen(
+                          context,
+                          private!,
+                          public!,
+                          fileHash!,
+                        ),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4CAF50),
@@ -155,7 +169,7 @@ class ResultScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Back',
+                  'Next',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,

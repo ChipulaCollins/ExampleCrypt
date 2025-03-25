@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:http/http.dart';
+
+import '../MetaMask/RPC.dart'; // Import your balance fetching file
 
 class Profile extends StatefulWidget {
   final User user;
@@ -17,11 +21,16 @@ class _ProfileState extends State<Profile> {
   String? userProfilePic;
   String? userEmail;
   bool _isLoading = true;
+  double? etherBalance;
+  String privateKey =
+      "0xfd4fa61d75f823bab6b08b56e2a56a2c1241e6b9920b3e679d2d9f3346d0a74a";
+  String apiUrl = "http://127.0.0.1:7545";
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
+    _fetchEtherBalance();
   }
 
   Future<void> _fetchUserData() async {
@@ -36,12 +45,12 @@ class _ProfileState extends State<Profile> {
         Map<dynamic, dynamic> userData = snapshot.value as Map<dynamic, dynamic>;
         setState(() {
           userName = userData['Name'];
-          userAge = userData['Age'];
+          userAge = userData['Age']?.toString(); // Convert int to String
           userProfilePic = userData['Profile Pic'];
           userEmail = userData['Email'];
           _isLoading = false;
         });
-        print("Profile Pic URL: $userProfilePic"); // Debugging
+        print("Profile Pic URL: $userProfilePic");
       } else {
         setState(() {
           _isLoading = false;
@@ -56,10 +65,24 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Future<void> _fetchEtherBalance() async {
+    try {
+      EtherAmount balance = await getAccountBalance(privateKey, apiUrl);
+      setState(() {
+        etherBalance = balance.getInEther.toDouble(); // Corrected line
+      });
+    } catch (e) {
+      print('Error fetching Ether balance: $e');
+      setState(() {
+        etherBalance = 0.0;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:  AppBar(
+      appBar: AppBar(
         title: Text('Profile'),
       ),
       body: _isLoading
@@ -85,7 +108,7 @@ class _ProfileState extends State<Profile> {
                   ),
                   const SizedBox(height: 8),
                   _WalletWidget(
-                    balance: 12.345,
+                    balance: etherBalance ?? 0.0,
                     user: widget.user,
                     additionalData: 'Age: $userAge, Email: $userEmail',
                     name: userName,
@@ -138,9 +161,6 @@ class _WalletWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (name != null) Text(name!),
-          /*if (age != null) Text(age! as String),
-          if (email != null) Text(email!),*/
-         // if (additionalData != null) Text(additionalData!),
           Text(user.email ?? 'Email not available'),
           const SizedBox(height: 10),
           Row(
@@ -149,7 +169,7 @@ class _WalletWidget extends StatelessWidget {
               const Icon(Icons.account_balance_wallet, color: Colors.blue),
               const SizedBox(width: 8.0),
               Text(
-                '\$${balance.toStringAsFixed(2)}',
+                '${balance.toStringAsFixed(6)} ETH',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],

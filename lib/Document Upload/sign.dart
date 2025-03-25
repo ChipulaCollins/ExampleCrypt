@@ -1,39 +1,69 @@
-import "package:flutter/foundation.dart";
-import "package:flutter/material.dart";
-import "package:pointycastle/export.dart";
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:pointycastle/export.dart';
+import 'dart:convert';
 
-class Sign extends StatelessWidget {
-Uint8List rsaSign(RSAPrivateKey privateKey, Uint8List dataToSign) {
-  //final signer = Signer('SHA-256/RSA'); // Get using registry
-  final signer = RSASigner(SHA256Digest(), '0609608648016503040201');
+Widget buildSignatureScreen(
+    BuildContext context,
+    RSAPrivateKey privateKey,
+    RSAPublicKey publicKey,
+    String digestString,
+    ) {
+  Uint8List? signature;
+  bool verificationResult = false;
 
-  // initialize with true, which means sign
-  signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
-
-  final sig = signer.generateSignature(dataToSign);
-
-  return sig.bytes;
-}
-
-bool rsaVerify(
-    RSAPublicKey publicKey, Uint8List signedData, Uint8List signature) {
-  //final signer = Signer('SHA-256/RSA'); // Get using registry
-  final sig = RSASignature(signature);
-
-  final verifier = RSASigner(SHA256Digest(), '0609608648016503040201');
-
-  // initialize with false, which means verify
-  verifier.init(false, PublicKeyParameter<RSAPublicKey>(publicKey));
-
-  try {
-    return verifier.verifySignature(signedData, sig);
-  } on ArgumentError {
-    return false; // for Pointy Castle 1.0.2 when signature has been modified
+  Uint8List rsaSign(RSAPrivateKey privateKey, Uint8List dataToSign) {
+    final signer = RSASigner(SHA256Digest(), '0609608648016503040201');
+    signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
+    final sig = signer.generateSignature(dataToSign);
+    return sig.bytes;
   }
-}
 
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }}
+  bool rsaVerify(RSAPublicKey publicKey, Uint8List signedData, Uint8List signature) {
+    final sig = RSASignature(signature);
+    final verifier = RSASigner(SHA256Digest(), '0609608648016503040201');
+    verifier.init(false, PublicKeyParameter<RSAPublicKey>(publicKey));
+    try {
+      return verifier.verifySignature(signedData, sig);
+    } on ArgumentError {
+      return false;
+    }
+  }
+
+  return Scaffold(
+    appBar: AppBar(title: const Text('Signature Screen')),
+    body: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text('Digest: $digestString'),
+        ElevatedButton(
+          onPressed: () {
+            signature = rsaSign(
+              privateKey,
+              Uint8List.fromList(utf8.encode(digestString)),
+            );
+            // Rebuild the widget to reflect the new signature
+            (context as Element).markNeedsBuild();
+          },
+          child: const Text('Sign Digest'),
+        ),
+        if (signature != null) ...[
+          Text('Signature: ${base64Encode(signature!)}'),
+          ElevatedButton(
+            onPressed: () {
+              verificationResult = rsaVerify(
+                publicKey,
+                Uint8List.fromList(utf8.encode(digestString)),
+                signature!,
+              );
+              // Rebuild the widget to reflect the new verification result
+              (context as Element).markNeedsBuild();
+            },
+            child: const Text('Verify Signature'),
+          ),
+          Text('Verification Result: ${verificationResult ? 'Valid' : 'Invalid'}'),
+        ],
+      ],
+    ),
+  );
+}
