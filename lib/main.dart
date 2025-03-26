@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:untitled/Document%20Upload/Result.dart';
 import 'package:untitled/Login/login.dart';
+import 'package:untitled/MetaMask/test2.dart';
 import 'package:untitled/View/message/chat/chats.dart';
 import 'package:untitled/Document Upload/Upload.dart';
 import 'MetaMask/test.dart';
@@ -17,6 +18,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
+
+
 }
 
 class MyApp extends StatelessWidget {
@@ -34,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/Signature': (context) => RouteScreen(routeName: 'Route 3'),
         '/verification': (context) => RouteScreen(routeName: 'Route 4'),
         '/Eth': (context) => BalanceDisplayWidget(),
+        '/Eth2': (context) => BalanceDisplayWidget2(),
         '/messages': (context) => Chats(),
         '/profile': (context) => Profile(user: FirebaseAuth.instance.currentUser!),
         //'/metamask': (context) => MetaMaskProviderScreen(),
@@ -119,6 +123,13 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.pushNamed(context, '/Eth');
               },
               child: Text('Eth'),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/Eth2');
+              },
+              child: Text('Eth2'),
             ),
             SizedBox(height: 16),
             ElevatedButton(

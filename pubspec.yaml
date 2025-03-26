@@ -42,8 +42,10 @@ dependencies:
   multicast_dns: ^0.3.2+8
   #flutter_foreground_service: ^0.4.1
   web_socket_client: ^0.1.0
+  web_socket_channel: ^2.4.0
   synchronized: ^3.3.0
   basic_utils: ^5.7.0
+  safe_local_storage: ^2.0.1
 
   uuid: ^3.0.5
   #url_launcher: ^6.3.1
@@ -56,6 +58,7 @@ dependencies:
   filesystem_picker: ^4.1.0
   file_picker: ^9.2.0
   crypto: ^3.0.6
+  shared_preferences: ^2.5.2
   #flutter_ipfs: ^0.0.2
 
   path_provider: ^2.0.2
@@ -88,7 +91,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
+assets:
+  - lib/Document Upload/JSONs
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
